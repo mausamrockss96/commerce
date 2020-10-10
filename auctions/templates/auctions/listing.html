@@ -1,0 +1,85 @@
+{% extends "auctions/layout.html" %}
+{% load static %}
+
+
+{% block body %}
+<div class="card_listing">
+    <div class="card" style="max-width: 1000px;">
+        <div class="row no-gutters">
+            <!-- <div class="col-md-5" style="background: rgb(214, 51, 173);"> -->
+              <div class="col-md-5" >
+
+              {% if listing.image %}
+                <img class="card-img-top h-100" src="{{ listing.image }}" alt="No Image Provided">
+              {% else %}
+                <img class="card-img-top h-100" src="{% static 'noimage.png' %}" alt="No Image Provided">
+              {% endif %}
+              </div>
+              <div class="col-md-7">
+                  <div class="card-body">
+                      <h5 class="card-title">{{listing.title}}</h5>
+                      <p class="card-text">{{listing.description}}</p>
+                      <p class="card-text">Category: {{listing.category}}</p>
+                      <p class="card-text">Listed By: {{listing.owner}}</p>
+                      <p class="card-text">Starting Price: ${{listing.startingbid}}</p>
+                      <p class="card-text">Current Price: ${{listing.highestbid}}</p>
+                      {% if listing.status %}   
+                          {% if user == listing.owner %}
+                          <form method="POST" action="{% url 'close' listing.id %}">
+                            {% csrf_token %}
+                            <input class="btn btn-primary" type="submit" value="Close" >
+                          </form>
+                          {% else %}
+                          <form method="POST" action="{% url 'listing' listing.id %}">
+                              {% csrf_token %}
+                          <div class="form-group">
+                            <input class="form-control" autofocus type="number" min="{{listing.highestbid}}" 
+                             name="newbid" placeholder="{{listing.highestbid}}" required>
+                          </div>
+                          <input class="btn btn-primary" type="submit" value="Place Bid" >
+                          </form>
+                          <br><br>
+                          {% if wishlist %}
+                          <form method="POST" action="{% url 'alterwish' listing.id %}">
+                            {% csrf_token %}
+                            <input class="btn btn-primary" type="submit" value="Remove from WishList" >
+                          </form>
+                          {% else %}
+                          <form method="POST" action="{% url 'alterwish' listing.id %}">
+                            {% csrf_token %}
+                            <input class="btn btn-primary" type="submit" value="Add to WishList" >
+                          </form>
+                          {% endif %}
+                          {% endif %}
+                    {% else %}
+                          {% if winner is None %}
+                          <h4>Item Unsold! No one Won</h4>
+                          {% else %}
+                          <h4>Item Sold!!!</h4>
+                          <h3>Winner is {{winner}}</h3>
+                          <p>Congratulations!</p>
+                          {% endif %}
+                    {% endif %}
+                  </div>
+              </div>
+          </div>
+     </div>
+  </div>
+  <br><br>
+  <h2>Comments</h2>
+  <hr>
+  {% if comments %}
+  <ul>
+    {% for comment in comments %}
+      <li>{{comment.comment}}</li>Commented By: {{comment.user}}
+    {% endfor %}
+  </ul>
+  {% endif %}
+  <form method="POST" action="{% url 'comment' listing.id %}">
+    {% csrf_token %}
+    <div class="form-group">
+      <textarea class="form-control" autofocus name="comment" rows="3" placeholder="Comments" required></textarea>
+    </div>
+    <input class="btn btn-primary" type="submit" value="Add Comment">
+  </form>
+{% endblock %}

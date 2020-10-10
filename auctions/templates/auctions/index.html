@@ -1,0 +1,36 @@
+{% extends "auctions/layout.html" %}
+{% load static %}
+{% block body %}
+{% if user.is_authenticated %}
+    {% if active %}
+        <h2>Active Listings 🎁 </h2>
+        <div class="row">
+        {% for listing in active %}
+        {%  if listing.status %}
+        <div class="card" style="width: 400px; margin: 20px;">
+          {% if listing.image %}
+            <img class="card-img-top" src="{{ listing.image }}" alt="Image">
+          {% else %}
+            <img class="card-img-top" src="{% static 'noimage.png' %}" alt="No Image Provided">
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title">{{listing.title}}</h5>
+            <p class="card-text">{{listing.description}}</p>
+            {% if listing.category %}
+            <p class="card-text">Category: {{listing.category}}</p>
+            {% endif %}
+            <p class="card-text">Current Price: ${{listing.highestbid}}</p>
+            <form method="GET" action="{% url 'listing' listing.id %}">
+            <input class="btn btn-primary" type="submit" value="View More">
+            </form>
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    {% else %}
+    <h2>No Active Listings</h2>
+    {% endif %}
+{% else %}
+<h1>NAMASTEY, WELCOME TO ONLINE SHOPPING!</h1>
+{% endif %}
+{% endblock %}
